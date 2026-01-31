@@ -1,0 +1,131 @@
+.trade-history-list {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.trade-history-header {
+  margin-bottom: 1rem;
+}
+
+.trade-history-header h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.trades-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.trades-header {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.trades-body {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
+  gap: 0.25rem;
+}
+
+.trade-row {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr 1fr 1fr 1fr;
+  gap: 1rem;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.trade-row:hover {
+  background-color: var(--bg-secondary);
+}
+
+.trade-row.buy {
+  border-left: 3px solid var(--accent-green);
+}
+
+.trade-row.sell {
+  border-left: 3px solid var(--accent-red);
+}
+
+.trade-time {
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.trade-user {
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.trade-side {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.trade-side.buy {
+  color: var(--accent-green);
+}
+
+.trade-side.sell {
+  color: var(--accent-red);
+}
+
+.trade-price {
+  color: var(--text-primary);
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.trade-amount {
+  color: var(--text-primary);
+  font-family: monospace;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .trades-header,
+  .trade-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  
+  .trades-header span {
+    display: none;
+  }
+  
+  .trade-row {
+    padding: 1rem;
+  }
+  
+  .trade-row::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-right: 0.5rem;
+  }
+}

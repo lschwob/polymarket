@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { getTrackedMarkets, deleteTrackedMarket, getMarketSnapshots } from '../api/markets'
+import { Link } from 'react-router-dom'
+import { getTrackedMarkets, deleteTrackedMarket, getMarketSnapshots, getMarketTrades, getMarketVolumeChart, getMarketDetail } from '../api/markets'
 import { getMarketShifts } from '../api/alerts'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts'
+import OutcomeCard from '../components/OutcomeCard'
+import ProbabilityChart from '../components/ProbabilityChart'
+import VolumeChart from '../components/VolumeChart'
+import TradeHistoryList from '../components/TradeHistoryList'
+import WebSocketIndicator from '../components/WebSocketIndicator'
+import useWebSocket from '../hooks/useWebSocket'
 import './Watchlist.css'
 
 function Watchlist() {
@@ -10,6 +16,9 @@ function Watchlist() {
   const [selectedMarket, setSelectedMarket] = useState(null)
   const [snapshots, setSnapshots] = useState([])
   const [shifts, setShifts] = useState([])
+  const [trades, setTrades] = useState([])
+  const [volumeChart, setVolumeChart] = useState([])
+  const [outcomes, setOutcomes] = useState([])
 
   useEffect(() => {
     loadMarkets()
@@ -37,14 +46,49 @@ function Watchlist() {
     }
   }
 
+  // WebSocket connection for selected market
+  const handleWebSocketMessage = (data) => {
+    if (data.type === 'market_update' && data.market_id === selectedMarket?.id) {
+      if (data.data.outcomes) {
+        setOutcomes(data.data.outcomes)
+      }
+      if (data.data.recent_trades) {
+        setTrades(prev => {
+          const newTrades = [...data.data.recent_trades, ...prev]
+          return newTrades.slice(0, 20)
+        })
+      }
+    }
+  }
+
+  const { connected, reconnecting } = useWebSocket(
+    selectedMarket?.id,
+    handleWebSocketMessage
+  )
+
   const loadMarketData = async (marketId) => {
     try {
-      const [snapshotsData, shiftsData] = await Promise.all([
+      const [detailData, snapshotsData, shiftsData, tradesData, volumeChartData] = await Promise.all([
+        getMarketDetail(marketId),
         getMarketSnapshots(marketId, 24),
-        getMarketShifts(marketId)
+        getMarketShifts(marketId),
+        getMarketTrades(marketId, 20),
+        getMarketVolumeChart(marketId, 24)
       ])
+      
+      // Set outcomes from detail data
+      if (detailData.outcomes && detailData.outcomes.length > 0) {
+        setOutcomes(detailData.outcomes)
+      } else {
+        // Fallback: extract outcomes from snapshots
+        const outcomeIds = [...new Set(snapshotsData.map(s => s.outcome_id))]
+        setOutcomes(outcomeIds.map(id => ({ id, name: `Outcome ${id}` })))
+      }
+      
       setSnapshots(snapshotsData)
       setShifts(shiftsData)
+      setTrades(tradesData || [])
+      setVolumeChart(volumeChartData?.data || [])
     } catch (error) {
       console.error('Error loading market data:', error)
     }
@@ -182,37 +226,57 @@ function Watchlist() {
             {selectedMarket ? (
               <>
                 <div className="market-header-section">
-                  <h2>{selectedMarket.title}</h2>
+                  <div className="header-top">
+                    <h2>{selectedMarket.title}</h2>
+                    <div className="header-actions">
+                      <WebSocketIndicator connected={connected} reconnecting={reconnecting} />
+                      <Link 
+                        to={`/market/${selectedMarket.id}`}
+                        className="view-detail-btn"
+                      >
+                        View Details →
+                      </Link>
+                    </div>
+                  </div>
                   <div className="market-meta">
                     <span>Added: {new Date(selectedMarket.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
 
-                {snapshots.length > 0 && (
-                  <div className="chart-section">
-                    <h3>Probability Trends (24h)</h3>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#2a2a2a" />
-                        <XAxis dataKey="time" stroke="#888" />
-                        <YAxis stroke="#888" domain={[0, 100]} />
-                        <Tooltip
-                          contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a' }}
-                          formatter={(value) => `${value.toFixed(1)}%`}
+                {outcomes.length > 0 && (
+                  <div className="outcomes-preview">
+                    <h3>Current Outcomes</h3>
+                    <div className="outcomes-grid-small">
+                      {outcomes.map((outcome) => (
+                        <OutcomeCard
+                          key={outcome.id || outcome.outcome_id}
+                          outcome={outcome}
                         />
-                        <Legend />
-                        {Object.keys(chartData[0] || {}).filter(k => k !== 'time').map((key, idx) => (
-                          <Line
-                            key={key}
-                            type="monotone"
-                            dataKey={key}
-                            stroke={['#00d4ff', '#ff6b6b', '#4ecdc4', '#ffe66d'][idx % 4]}
-                            strokeWidth={2}
-                            dot={false}
-                          />
-                        ))}
-                      </LineChart>
-                    </ResponsiveContainer>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {snapshots.length > 0 && outcomes.length > 0 && (
+                  <div className="chart-section">
+                    <ProbabilityChart 
+                      data={snapshots} 
+                      outcomes={outcomes}
+                      range="24h"
+                    />
+                  </div>
+                )}
+
+                {volumeChart.length > 0 && (
+                  <div className="chart-section">
+                    <VolumeChart data={volumeChart} />
+                  </div>
+                )}
+
+                {trades.length > 0 && (
+                  <div className="trades-section">
+                    <h3>Recent Trades</h3>
+                    <TradeHistoryList trades={trades} limit={10} />
                   </div>
                 )}
 

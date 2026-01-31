@@ -10,9 +10,9 @@
 }
 
 .back-btn {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #3a3a3a;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -20,19 +20,20 @@
 }
 
 .back-btn:hover {
-  background-color: #3a3a3a;
-  border-color: #00d4ff;
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
 }
 
 .page-header h1 {
   font-size: 2rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .events-list {
@@ -42,45 +43,99 @@
 }
 
 .event-card {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   transition: all 0.2s;
+  box-shadow: var(--shadow);
+  gap: 1rem;
 }
 
 .event-card:hover {
-  border-color: #3a3a3a;
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-hover);
 }
 
 .event-info {
   flex: 1;
+  min-width: 0;
+}
+
+.event-description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+
+.event-expanded {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.event-outcomes h4 {
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+}
+
+.outcomes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.expand-btn {
+  background: none;
+  border: 1px solid var(--border-color);
+  color: var(--accent-blue);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+  transition: all 0.2s;
+}
+
+.expand-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--accent-blue);
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .event-info h3 {
   font-size: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .event-slug {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   font-family: monospace;
 }
 
 .event-volume {
-  color: #00d4ff;
+  color: var(--accent-blue);
   font-size: 0.9rem;
 }
 
 .track-btn {
-  background-color: #00d4ff;
-  color: #0a0a0a;
+  background-color: var(--accent-blue);
+  color: white;
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: 6px;
@@ -90,18 +145,35 @@
 }
 
 .track-btn:hover:not(:disabled) {
-  background-color: #00b8e6;
+  background-color: #1976d2;
 }
 
 .track-btn:disabled,
 .track-btn.tracked {
-  background-color: #2a2a2a;
-  color: #888;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
   cursor: not-allowed;
+}
+
+.view-link {
+  color: var(--accent-blue);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.view-link:hover {
+  color: #1976d2;
+  text-decoration: underline;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
 }

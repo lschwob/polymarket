@@ -4,6 +4,7 @@ import TrendingPage from './pages/TrendingPage'
 import CategoryPage from './pages/CategoryPage'
 import Dashboard from './pages/Dashboard'
 import Watchlist from './pages/Watchlist'
+import MarketDetailPage from './pages/MarketDetailPage'
 import './App.css'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
             <Route path="/" element={<TrendingPage />} />
             <Route path="/category/:tagSlug" element={<CategoryPage />} />
             <Route path="/watchlist" element={<Watchlist />} />
+            <Route path="/market/:marketId" element={<MarketDetailPage />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>

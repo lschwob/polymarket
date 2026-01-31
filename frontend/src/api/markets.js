@@ -32,3 +32,34 @@ export const getMarketSnapshots = async (marketId, rangeHours = 24) => {
   })
   return response.data
 }
+
+export const getMarketDetail = async (marketId) => {
+  const response = await client.get(`/api/markets/${marketId}/detail`)
+  return response.data
+}
+
+export const getMarketTrades = async (marketId, limit = 100, offset = 0) => {
+  const response = await client.get(`/api/markets/${marketId}/trades`, {
+    params: { limit, offset }
+  })
+  return response.data
+}
+
+export const getMarketOrderBook = async (marketId) => {
+  const response = await client.get(`/api/markets/${marketId}/order-book`)
+  return response.data
+}
+
+export const getMarketPriceHistory = async (marketId, interval = '1m', rangeHours = 24) => {
+  const response = await client.get(`/api/markets/${marketId}/price-history`, {
+    params: { interval, range_hours: rangeHours }
+  })
+  return response.data
+}
+
+export const getMarketVolumeChart = async (marketId, rangeHours = 24) => {
+  const response = await client.get(`/api/markets/${marketId}/volume-chart`, {
+    params: { range_hours: rangeHours }
+  })
+  return response.data
+}

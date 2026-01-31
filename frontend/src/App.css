@@ -1,15 +1,16 @@
 .app {
   min-height: 100vh;
-  background-color: #0a0a0a;
+  background-color: var(--bg-primary);
 }
 
 .navbar {
-  background-color: #1a1a1a;
-  border-bottom: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
   position: sticky;
   top: 0;
   z-index: 100;
+  box-shadow: var(--shadow);
 }
 
 .nav-container {
@@ -24,7 +25,7 @@
 .nav-logo {
   font-size: 1.5rem;
   font-weight: bold;
-  color: #00d4ff;
+  color: var(--accent-blue);
   text-decoration: none;
 }
 
@@ -34,20 +35,21 @@
 }
 
 .nav-link {
-  color: #e0e0e0;
+  color: var(--text-primary);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .nav-link:hover {
-  color: #00d4ff;
+  color: var(--accent-blue);
 }
 
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  background-color: var(--bg-primary);
 }
 
 @media (max-width: 768px) {

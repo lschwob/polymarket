@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, ForeignKey
+from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, Boolean, ForeignKey, JSON, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime
@@ -68,6 +68,56 @@ class Alert(Base):
     status = Column(String, default="active")  # active, acknowledged
     
     market = relationship("TrackedMarket")
+
+class Trade(Base):
+    __tablename__ = "trade"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    market_id = Column(Integer, ForeignKey("tracked_market.id"), index=True)
+    outcome_id = Column(Integer, ForeignKey("outcome.id"), nullable=True, index=True)
+    token_id = Column(String, index=True)  # Token ID from CLOB API
+    user_address = Column(String, nullable=True)  # Anonymized user address
+    amount = Column(Float)  # Trade amount
+    price = Column(Float)  # Trade price
+    side = Column(String)  # "buy" or "sell"
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    trade_id = Column(String, unique=True, nullable=True)  # External trade ID
+    
+    market = relationship("TrackedMarket")
+    outcome = relationship("Outcome")
+
+class PriceSnapshot(Base):
+    __tablename__ = "price_snapshot"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    market_id = Column(Integer, ForeignKey("tracked_market.id"), index=True)
+    outcome_id = Column(Integer, ForeignKey("outcome.id"), nullable=True, index=True)
+    token_id = Column(String, index=True)  # Token ID from CLOB API
+    price = Column(Float)  # Price at this snapshot
+    volume = Column(Float, nullable=True)  # Volume at this snapshot
+    open_price = Column(Float, nullable=True)  # OHLC data
+    high_price = Column(Float, nullable=True)
+    low_price = Column(Float, nullable=True)
+    close_price = Column(Float, nullable=True)
+    interval = Column(String)  # "1m", "5m", "1h", "1d"
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    market = relationship("TrackedMarket")
+    outcome = relationship("Outcome")
+
+class OrderBookSnapshot(Base):
+    __tablename__ = "order_book_snapshot"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    market_id = Column(Integer, ForeignKey("tracked_market.id"), index=True)
+    outcome_id = Column(Integer, ForeignKey("outcome.id"), nullable=True, index=True)
+    token_id = Column(String, index=True)  # Token ID from CLOB API
+    bids = Column(JSON)  # List of bid orders [{price, size}, ...]
+    asks = Column(JSON)  # List of ask orders [{price, size}, ...]
+    timestamp = Column(DateTime, default=datetime.utcnow, index=True)
+    
+    market = relationship("TrackedMarket")
+    outcome = relationship("Outcome")
 
 # SQLite database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./polymarket_tracker.db"

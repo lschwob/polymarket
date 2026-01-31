@@ -1,0 +1,111 @@
+.order-book-table {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.order-book-header {
+  margin-bottom: 1rem;
+}
+
+.order-book-header h3 {
+  font-size: 1.25rem;
+  color: var(--text-primary);
+}
+
+.order-book-content {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+}
+
+.order-book-side {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.side-orders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.bid-row {
+  background-color: rgba(67, 160, 71, 0.1);
+}
+
+.ask-row {
+  background-color: rgba(229, 57, 53, 0.1);
+}
+
+.order-price {
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bid-row .order-price {
+  color: var(--accent-green);
+}
+
+.ask-row .order-price {
+  color: var(--accent-red);
+}
+
+.order-size {
+  font-family: monospace;
+  color: var(--text-secondary);
+}
+
+.empty-orders {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.order-book-divider {
+  width: 1px;
+  background-color: var(--border-color);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .order-book-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .order-book-divider {
+    display: none;
+  }
+}

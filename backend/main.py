@@ -1,15 +1,18 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import datetime, timedelta
 
-from database import get_db, init_db, TrackedMarket, Alert, Snapshot, Outcome
+from database import get_db, init_db, TrackedMarket, Alert, Snapshot, Outcome, Trade, PriceSnapshot, OrderBookSnapshot
 from services.trending_categories import get_trending_categories, refresh_trending_categories
-from services.market_data import fetch_events_by_tag, fetch_market_details
+from services.market_data import fetch_events_by_tag, fetch_market_details, extract_outcomes_from_event, calculate_probabilities_from_prices
 from services.snapshot_service import refresh_all_tracked_markets
 from services.alert_detection import detect_shifts, create_alerts
+from services.clob_api import fetch_market_trades, fetch_order_book, fetch_price_history, fetch_market_trades_by_market
+from services.the_graph_service import fetch_market_transactions, fetch_recent_market_activity
+from services.websocket_service import websocket_endpoint, manager
 from scheduler import start_scheduler, stop_scheduler
 
 app = FastAPI(title="Polymarket Trending Tracker API")
@@ -84,6 +87,41 @@ class AlertResponse(BaseModel):
     status: str
     market_title: Optional[str] = None
 
+class TradeResponse(BaseModel):
+    id: Optional[int] = None
+    market_id: int
+    outcome_id: Optional[int] = None
+    token_id: Optional[str] = None
+    outcome_name: Optional[str] = None
+    user_address: Optional[str] = None
+    amount: float
+    price: float
+    side: str
+    timestamp: str
+    trade_id: Optional[str] = None
+
+class OrderBookResponse(BaseModel):
+    token_id: str
+    outcome_name: Optional[str] = None
+    bids: List[dict]
+    asks: List[dict]
+    timestamp: str
+
+class PriceHistoryResponse(BaseModel):
+    timestamp: float
+    price: float
+    volume: Optional[float] = None
+    open: Optional[float] = None
+    high: Optional[float] = None
+    low: Optional[float] = None
+    close: Optional[float] = None
+
+class VolumeChartResponse(BaseModel):
+    outcome_id: str
+    outcome_name: str
+    volume: float
+    timestamp: str
+
 # API Endpoints
 
 @app.get("/api/trending-categories", response_model=List[TrendingCategory])
@@ -114,7 +152,16 @@ async def get_market(market_slug: str):
     market = await fetch_market_details(market_slug)
     if not market:
         raise HTTPException(status_code=404, detail="Market not found")
-    return market
+    
+    # Extract and normalize outcomes
+    outcomes = extract_outcomes_from_event(market)
+    outcomes = calculate_probabilities_from_prices(outcomes)
+    
+    return {
+        **market,
+        "outcomes": outcomes,
+        "description": market.get("description") or market.get("question") or market.get("text")
+    }
 
 @app.post("/api/tracked-markets", response_model=TrackedMarketResponse)
 async def create_tracked_market(
@@ -305,6 +352,224 @@ async def refresh_snapshots(db: Session = Depends(get_db)):
             create_alerts(db, shifts)
     
     return {"message": "Snapshots refreshed"}
+
+@app.get("/api/markets/{market_id}/trades")
+async def get_market_trades(
+    market_id: int,
+    limit: int = 100,
+    offset: int = 0,
+    db: Session = Depends(get_db)
+):
+    """Get trade history for a market."""
+    market = db.query(TrackedMarket).filter(TrackedMarket.id == market_id).first()
+    if not market:
+        raise HTTPException(status_code=404, detail="Market not found")
+    
+    # Fetch trades from CLOB API
+    trades = await fetch_market_trades_by_market(market.market_slug, limit=limit, offset=offset)
+    
+    # Also get from database if available
+    db_trades = (
+        db.query(Trade)
+        .filter(Trade.market_id == market_id)
+        .order_by(Trade.timestamp.desc())
+        .limit(limit)
+        .offset(offset)
+        .all()
+    )
+    
+    # Combine and deduplicate
+    trade_dict = {}
+    for trade in trades:
+        trade_id = trade.get("id") or trade.get("trade_id")
+        if trade_id:
+            trade_dict[trade_id] = trade
+    
+    for db_trade in db_trades:
+        if db_trade.trade_id and db_trade.trade_id not in trade_dict:
+            trade_dict[db_trade.trade_id] = {
+                "id": db_trade.id,
+                "market_id": db_trade.market_id,
+                "outcome_id": db_trade.outcome_id,
+                "token_id": db_trade.token_id,
+                "user_address": db_trade.user_address,
+                "amount": db_trade.amount,
+                "price": db_trade.price,
+                "side": db_trade.side,
+                "timestamp": db_trade.timestamp.isoformat(),
+                "trade_id": db_trade.trade_id
+            }
+    
+    return list(trade_dict.values())[:limit]
+
+@app.get("/api/markets/{market_id}/order-book")
+async def get_market_order_book(
+    market_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get current order book for a market."""
+    market = db.query(TrackedMarket).filter(TrackedMarket.id == market_id).first()
+    if not market:
+        raise HTTPException(status_code=404, detail="Market not found")
+    
+    # Get market details to find outcome token IDs
+    market_data = await fetch_market_details(market.market_slug)
+    if not market_data:
+        raise HTTPException(status_code=404, detail="Market data not found")
+    
+    outcomes = extract_outcomes_from_event(market_data)
+    order_books = []
+    
+    for outcome in outcomes:
+        token_id = outcome.get("id")
+        if token_id:
+            order_book = await fetch_order_book(token_id)
+            if order_book:
+                order_book["outcome_name"] = outcome.get("name")
+                order_books.append(order_book)
+    
+    return {"order_books": order_books}
+
+@app.get("/api/markets/{market_id}/price-history")
+async def get_market_price_history(
+    market_id: int,
+    interval: str = "1m",
+    range_hours: int = 24,
+    db: Session = Depends(get_db)
+):
+    """Get price history for a market."""
+    market = db.query(TrackedMarket).filter(TrackedMarket.id == market_id).first()
+    if not market:
+        raise HTTPException(status_code=404, detail="Market not found")
+    
+    # Get market details to find outcome token IDs
+    market_data = await fetch_market_details(market.market_slug)
+    if not market_data:
+        raise HTTPException(status_code=404, detail="Market data not found")
+    
+    outcomes = extract_outcomes_from_event(market_data)
+    start_time = datetime.utcnow() - timedelta(hours=range_hours)
+    end_time = datetime.utcnow()
+    
+    price_history = []
+    
+    for outcome in outcomes:
+        token_id = outcome.get("id")
+        if token_id:
+            history = await fetch_price_history(
+                token_id,
+                interval=interval,
+                start_time=start_time,
+                end_time=end_time
+            )
+            
+            for point in history:
+                point["outcome_id"] = token_id
+                point["outcome_name"] = outcome.get("name")
+            
+            price_history.extend(history)
+    
+    # Sort by timestamp
+    price_history.sort(key=lambda x: x.get("timestamp", 0))
+    
+    return {"data": price_history}
+
+@app.get("/api/markets/{market_id}/volume-chart")
+async def get_market_volume_chart(
+    market_id: int,
+    range_hours: int = 24,
+    db: Session = Depends(get_db)
+):
+    """Get volume chart data by outcome for a market."""
+    market = db.query(TrackedMarket).filter(TrackedMarket.id == market_id).first()
+    if not market:
+        raise HTTPException(status_code=404, detail="Market not found")
+    
+    # Get snapshots with volume data
+    cutoff = datetime.utcnow() - timedelta(hours=range_hours)
+    
+    snapshots = (
+        db.query(Snapshot)
+        .join(Outcome)
+        .filter(Snapshot.market_id == market_id)
+        .filter(Snapshot.ts >= cutoff)
+        .all()
+    )
+    
+    # Aggregate volume by outcome
+    volume_by_outcome = {}
+    for snapshot in snapshots:
+        outcome_id = snapshot.outcome_id
+        if outcome_id not in volume_by_outcome:
+            outcome = db.query(Outcome).filter(Outcome.id == outcome_id).first()
+            volume_by_outcome[outcome_id] = {
+                "outcome_id": str(outcome.outcome_id) if outcome else str(outcome_id),
+                "outcome_name": outcome.name if outcome else f"Outcome {outcome_id}",
+                "volume": 0
+            }
+        
+        if snapshot.volume:
+            volume_by_outcome[outcome_id]["volume"] += snapshot.volume
+    
+    return {"data": list(volume_by_outcome.values())}
+
+@app.websocket("/ws/market/{market_id}")
+async def websocket_market_updates(websocket: WebSocket, market_id: int):
+    """WebSocket endpoint for real-time market updates."""
+    await websocket_endpoint(websocket, market_id)
+
+@app.get("/api/markets/{market_id}/detail")
+async def get_market_detail(
+    market_id: int,
+    db: Session = Depends(get_db)
+):
+    """Get comprehensive market details including outcomes, current prices, and stats."""
+    market = db.query(TrackedMarket).filter(TrackedMarket.id == market_id).first()
+    if not market:
+        raise HTTPException(status_code=404, detail="Market not found")
+    
+    # Get market data from Gamma API
+    market_data = await fetch_market_details(market.market_slug)
+    if not market_data:
+        raise HTTPException(status_code=404, detail="Market data not found")
+    
+    # Extract outcomes
+    outcomes = extract_outcomes_from_event(market_data)
+    
+    # Get recent trades (last 10)
+    recent_trades = await fetch_market_trades_by_market(market.market_slug, limit=10)
+    
+    # Get order books for all outcomes
+    order_books = []
+    for outcome in outcomes:
+        token_id = outcome.get("id")
+        if token_id:
+            order_book = await fetch_order_book(token_id)
+            if order_book:
+                order_book["outcome_name"] = outcome.get("name")
+                order_books.append(order_book)
+    
+    # Normalize outcomes probabilities
+    outcomes = calculate_probabilities_from_prices(outcomes)
+    
+    return {
+        "market": {
+            "id": market.id,
+            "slug": market.market_slug,
+            "title": market.title,
+            "tag_slug": market.tag_slug,
+            "created_at": market.created_at.isoformat()
+        },
+        "outcomes": outcomes,
+        "recent_trades": recent_trades[:10],
+        "order_books": order_books,
+        "volume_24h": market_data.get("volume", 0),
+        "liquidity": market_data.get("liquidity", 0),
+        "description": market_data.get("description") or market_data.get("question") or market_data.get("text"),
+        "image": market_data.get("image"),
+        "end_date": market_data.get("end_date") or market_data.get("endDate"),
+        "resolution_source": market_data.get("resolution_source") or market_data.get("resolutionSource")
+    }
 
 @app.get("/")
 async def root():

@@ -5,11 +5,11 @@
 .watchlist h1 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .subtitle {
-  color: #888;
+  color: var(--text-secondary);
   margin-bottom: 2rem;
 }
 
@@ -22,7 +22,7 @@
 .markets-sidebar h2 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .markets-list {
@@ -32,21 +32,23 @@
 }
 
 .market-card {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: var(--shadow);
 }
 
 .market-card:hover {
-  border-color: #3a3a3a;
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-hover);
 }
 
 .market-card.selected {
-  border-color: #00d4ff;
-  background-color: #1a2a2a;
+  border-color: var(--accent-blue);
+  background-color: var(--bg-secondary);
 }
 
 .market-header {
@@ -58,14 +60,14 @@
 
 .market-header h3 {
   font-size: 1.1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   flex: 1;
 }
 
 .delete-btn {
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -78,11 +80,11 @@
 }
 
 .delete-btn:hover {
-  color: #ff6b6b;
+  color: var(--accent-red);
 }
 
 .market-slug {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-family: monospace;
   margin-bottom: 0.5rem;
@@ -90,29 +92,73 @@
 
 .market-stats {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .market-details-panel {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 2rem;
+  box-shadow: var(--shadow);
 }
 
 .market-header-section {
   margin-bottom: 2rem;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
 .market-header-section h2 {
   font-size: 1.75rem;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.view-detail-btn {
+  background-color: var(--accent-blue);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.view-detail-btn:hover {
+  background-color: #1976d2;
 }
 
 .market-meta {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.9rem;
+}
+
+.outcomes-preview {
+  margin-bottom: 2rem;
+}
+
+.outcomes-preview h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.outcomes-grid-small {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1rem;
 }
 
 .chart-section {
@@ -122,7 +168,18 @@
 .chart-section h3 {
   font-size: 1.25rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
+}
+
+.trades-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+.trades-section h3 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 
 .shifts-section {
@@ -132,11 +189,11 @@
 .shifts-section h3 {
   font-size: 1.25rem;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .section-description {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -144,14 +201,15 @@
 .shifts-chart {
   margin-bottom: 2rem;
   padding: 1rem;
-  background-color: #0a0a0a;
+  background-color: var(--bg-secondary);
   border-radius: 6px;
+  border: 1px solid var(--border-color);
 }
 
 .shifts-chart h4 {
   font-size: 1rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .shifts-list {
@@ -161,20 +219,21 @@
 }
 
 .shift-card {
-  background-color: #0a0a0a;
-  border: 1px solid #2a2a2a;
-  border-left: 4px solid #00d4ff;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-blue);
   border-radius: 8px;
   padding: 1.5rem;
   transition: all 0.2s;
+  box-shadow: var(--shadow);
 }
 
 .shift-card.positive {
-  border-left-color: #4ecdc4;
+  border-left-color: var(--accent-green);
 }
 
 .shift-card.negative {
-  border-left-color: #ff6b6b;
+  border-left-color: var(--accent-red);
 }
 
 .shift-card.acknowledged {
@@ -189,7 +248,7 @@
 }
 
 .shift-time {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
 }
 
@@ -202,13 +261,13 @@
 }
 
 .shift-status.active {
-  background-color: #00d4ff;
-  color: #0a0a0a;
+  background-color: var(--accent-blue);
+  color: white;
 }
 
 .shift-status.acknowledged {
-  background-color: #2a2a2a;
-  color: #888;
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
 }
 
 .shift-details {
@@ -225,15 +284,15 @@
 }
 
 .prob-change .prev {
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .prob-change .arrow {
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .prob-change .new {
-  color: #e0e0e0;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
@@ -244,11 +303,11 @@
 }
 
 .prob-change .delta.positive {
-  color: #4ecdc4;
+  color: var(--accent-green);
 }
 
 .prob-change .delta.negative {
-  color: #ff6b6b;
+  color: var(--accent-red);
 }
 
 .shift-metrics {
@@ -256,7 +315,7 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #2a2a2a;
+  border-top: 1px solid var(--border-color);
 }
 
 .metric {
@@ -266,49 +325,49 @@
 }
 
 .metric .label {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   text-transform: uppercase;
 }
 
 .metric .value {
-  color: #e0e0e0;
+  color: var(--text-primary);
   font-size: 1.1rem;
   font-weight: 600;
 }
 
 .metric .value.highlight {
-  color: #00d4ff;
+  color: var(--accent-blue);
   font-size: 1.25rem;
 }
 
 .metric .value.positive {
-  color: #4ecdc4;
+  color: var(--accent-green);
 }
 
 .metric .value.negative {
-  color: #ff6b6b;
+  color: var(--accent-red);
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 .empty-state-small {
   text-align: center;
   padding: 2rem;
-  color: #666;
-  background-color: #0a0a0a;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
   border-radius: 6px;
-  border: 1px solid #2a2a2a;
+  border: 1px solid var(--border-color);
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1024px) {

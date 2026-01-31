@@ -5,7 +5,7 @@
 .dashboard h1 {
   font-size: 2rem;
   margin-bottom: 2rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .dashboard-grid {
@@ -20,7 +20,7 @@
 .alerts-section h2 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .markets-list {
@@ -30,21 +30,23 @@
 }
 
 .market-card {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
   transition: all 0.2s;
+  box-shadow: var(--shadow);
 }
 
 .market-card:hover {
-  border-color: #3a3a3a;
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-hover);
 }
 
 .market-card.selected {
-  border-color: #00d4ff;
-  background-color: #1a2a2a;
+  border-color: var(--accent-blue);
+  background-color: var(--bg-secondary);
 }
 
 .market-header {
@@ -56,14 +58,14 @@
 
 .market-header h3 {
   font-size: 1.1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
   flex: 1;
 }
 
 .delete-btn {
   background: none;
   border: none;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
@@ -76,24 +78,26 @@
 }
 
 .delete-btn:hover {
-  color: #ff6b6b;
+  color: var(--accent-red);
 }
 
 .market-slug {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   font-family: monospace;
 }
 
 .market-details {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1.5rem;
+  box-shadow: var(--shadow);
 }
 
 .market-details h2 {
   margin-bottom: 1.5rem;
+  color: var(--text-primary);
 }
 
 .chart-container {
@@ -103,7 +107,7 @@
 .chart-container h3 {
   font-size: 1.1rem;
   margin-bottom: 1rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .alerts-section {
@@ -117,22 +121,23 @@
 }
 
 .alert-card {
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-left: 4px solid #00d4ff;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-blue);
   border-radius: 8px;
   padding: 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  box-shadow: var(--shadow);
 }
 
 .alert-card.positive {
-  border-left-color: #4ecdc4;
+  border-left-color: var(--accent-green);
 }
 
 .alert-card.negative {
-  border-left-color: #ff6b6b;
+  border-left-color: var(--accent-red);
 }
 
 .alert-content {
@@ -142,7 +147,7 @@
 .alert-content h4 {
   font-size: 1.1rem;
   margin-bottom: 0.5rem;
-  color: #e0e0e0;
+  color: var(--text-primary);
 }
 
 .alert-details {
@@ -150,7 +155,7 @@
   gap: 0.5rem;
   align-items: center;
   margin-bottom: 0.5rem;
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.9rem;
 }
 
@@ -160,29 +165,29 @@
 }
 
 .delta.positive {
-  color: #4ecdc4;
+  color: var(--accent-green);
 }
 
 .delta.negative {
-  color: #ff6b6b;
+  color: var(--accent-red);
 }
 
 .alert-volume {
-  color: #888;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin-top: 0.5rem;
 }
 
 .alert-time {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin-top: 0.25rem;
 }
 
 .ack-btn {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-  border: 1px solid #3a3a3a;
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
@@ -190,23 +195,25 @@
 }
 
 .ack-btn:hover {
-  background-color: #3a3a3a;
-  border-color: #00d4ff;
+  background-color: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #888;
-  background-color: #1a1a1a;
-  border: 1px solid #2a2a2a;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
+  box-shadow: var(--shadow);
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 1024px) {

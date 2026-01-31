@@ -45,20 +45,31 @@ def extract_outcomes_from_event(event: Dict) -> List[Dict]:
         # Try direct market data
         markets = [event] if event.get("outcomes") else []
     
+    # First pass: collect all outcomes and prices
+    all_outcomes = []
     for market in markets:
         market_outcomes = market.get("outcomes", [])
         for outcome in market_outcomes:
-            price = outcome.get("price", 0)
-            prob = float(price) if price else 0.0
-            
-            outcomes.append({
+            price = float(outcome.get("price", 0) or 0)
+            all_outcomes.append({
                 "id": outcome.get("id") or outcome.get("outcome_id"),
                 "name": outcome.get("title") or outcome.get("name"),
                 "price": price,
-                "prob": prob
+                "raw_price": price
             })
     
-    return outcomes
+    # Calculate normalized probabilities
+    total_price = sum(o["price"] for o in all_outcomes)
+    if total_price > 0:
+        for outcome in all_outcomes:
+            outcome["prob"] = outcome["price"] / total_price
+    else:
+        # Equal distribution if no prices
+        equal_prob = 1.0 / len(all_outcomes) if all_outcomes else 0
+        for outcome in all_outcomes:
+            outcome["prob"] = equal_prob
+    
+    return all_outcomes
 
 def calculate_probabilities_from_prices(outcomes: List[Dict]) -> List[Dict]:
     """Calculate implied probabilities from outcome prices."""
