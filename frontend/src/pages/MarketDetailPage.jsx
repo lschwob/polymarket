@@ -144,14 +144,29 @@ function MarketDetailPage() {
         <h2>Outcomes</h2>
         {outcomes.length > 0 ? (
           <div className="outcomes-grid">
-            {outcomes.map((outcome) => (
-              <OutcomeCard
-                key={outcome.id || outcome.outcome_id}
-                outcome={outcome}
-                selected={selectedOutcome === (outcome.id || outcome.outcome_id)}
-                onClick={() => setSelectedOutcome(outcome.id || outcome.outcome_id)}
-              />
-            ))}
+            {outcomes.map((outcome) => {
+              const oid = outcome.id || outcome.outcome_id
+              const orderBook = orderBooks.find((ob) => ob.token_id === oid || ob.token_id === String(oid))
+              const outcomePriceHistory = (priceHistory || []).filter((p) => p.outcome_id === oid || p.outcome_id === String(oid))
+              let change24h = null
+              if (outcomePriceHistory.length >= 2) {
+                const first = outcomePriceHistory[0]?.close ?? outcomePriceHistory[0]?.price
+                const last = outcomePriceHistory[outcomePriceHistory.length - 1]?.close ?? outcomePriceHistory[outcomePriceHistory.length - 1]?.price
+                if (first != null && last != null && first > 0) change24h = ((last - first) / first) * 100
+              }
+              return (
+                <OutcomeCard
+                  key={oid}
+                  outcome={outcome}
+                  selected={selectedOutcome === oid}
+                  onClick={() => setSelectedOutcome(oid)}
+                  orderBook={orderBook}
+                  priceHistory={outcomePriceHistory}
+                  change24h={change24h}
+                  marketId={marketId}
+                />
+              )
+            })}
           </div>
         ) : (
           <div className="empty-state">
@@ -182,13 +197,14 @@ function MarketDetailPage() {
           </div>
         </div>
 
-        {snapshots.length > 0 && outcomes.length > 0 ? (
+        {(priceHistory?.length > 0 || (snapshots.length > 0 && outcomes.length > 0)) ? (
           <div className="chart-row">
             <div className="chart-container">
               <ProbabilityChart 
                 data={snapshots} 
                 outcomes={outcomes}
                 range={timeRange}
+                priceHistory={priceHistory}
               />
             </div>
           </div>

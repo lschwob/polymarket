@@ -14,3 +14,10 @@
   font-size: 1.25rem;
   color: var(--text-primary);
 }
+
+.chart-empty {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}

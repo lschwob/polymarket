@@ -1,0 +1,81 @@
+.user-activity-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.user-activity-card.trade .side-badge.buy {
+  background: var(--accent-green);
+  color: #fff;
+}
+
+.user-activity-card.trade .side-badge.sell {
+  background: var(--accent-red);
+  color: #fff;
+}
+
+.user-activity-card .side-badge.redeem {
+  background: var(--accent-blue);
+  color: #fff;
+}
+
+.user-activity-icon {
+  flex-shrink: 0;
+}
+
+.side-badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 4px;
+}
+
+.user-activity-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-activity-market {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.user-activity-outcome {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.user-activity-meta {
+  font-size: 0.85rem;
+  font-family: monospace;
+  color: var(--text-secondary);
+  margin-bottom: 0.2rem;
+}
+
+.user-activity-usdc {
+  margin-left: 0.5rem;
+  color: var(--accent-blue);
+}
+
+.user-activity-time {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.user-activity-link {
+  font-size: 0.85rem;
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.user-activity-link:hover {
+  text-decoration: underline;
+}

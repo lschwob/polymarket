@@ -349,6 +349,46 @@
   color: var(--accent-red);
 }
 
+.activity-feed-section {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.activity-feed-section h3 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.activity-feed-section .section-description {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.activity-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.activity-feed-link {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+.activity-feed-link:hover {
+  text-decoration: underline;
+}
+
 .empty-state {
   text-align: center;
   padding: 3rem;

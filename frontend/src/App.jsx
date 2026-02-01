@@ -5,6 +5,7 @@ import CategoryPage from './pages/CategoryPage'
 import Dashboard from './pages/Dashboard'
 import Watchlist from './pages/Watchlist'
 import MarketDetailPage from './pages/MarketDetailPage'
+import UserTracker from './pages/UserTracker'
 import './App.css'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <div className="nav-links">
               <Link to="/" className="nav-link">Trending</Link>
               <Link to="/watchlist" className="nav-link">Watchlist</Link>
+              <Link to="/users" className="nav-link">User Tracker</Link>
               <Link to="/dashboard" className="nav-link">Dashboard</Link>
             </div>
           </div>
@@ -30,6 +32,7 @@ function App() {
             <Route path="/category/:tagSlug" element={<CategoryPage />} />
             <Route path="/watchlist" element={<Watchlist />} />
             <Route path="/market/:marketId" element={<MarketDetailPage />} />
+            <Route path="/users" element={<UserTracker />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </main>

@@ -1,0 +1,17 @@
+.outcome-price-chart {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.outcome-price-chart .chart-header {
+  margin-bottom: 0.5rem;
+}
+
+.outcome-price-chart .chart-header h3 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin: 0;
+}

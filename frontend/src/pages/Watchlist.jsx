@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { getTrackedMarkets, deleteTrackedMarket, getMarketSnapshots, getMarketTrades, getMarketVolumeChart, getMarketDetail } from '../api/markets'
+import { getTrackedMarkets, deleteTrackedMarket, getMarketSnapshots, getMarketTrades, getMarketVolumeChart, getMarketDetail, getMarketPriceHistory, getMarketOrderBook } from '../api/markets'
 import { getMarketShifts } from '../api/alerts'
+import { getActivityFeed } from '../api/users'
 import OutcomeCard from '../components/OutcomeCard'
+import UserActivityCard from '../components/UserActivityCard'
 import ProbabilityChart from '../components/ProbabilityChart'
 import VolumeChart from '../components/VolumeChart'
 import TradeHistoryList from '../components/TradeHistoryList'
@@ -19,12 +21,36 @@ function Watchlist() {
   const [trades, setTrades] = useState([])
   const [volumeChart, setVolumeChart] = useState([])
   const [outcomes, setOutcomes] = useState([])
+  const [orderBooks, setOrderBooks] = useState([])
+  const [priceHistory, setPriceHistory] = useState([])
+  const [activityFeed, setActivityFeed] = useState([])
 
   useEffect(() => {
     loadMarkets()
     const interval = setInterval(loadMarkets, 30000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    loadActivityFeed()
+    const interval = setInterval(loadActivityFeed, 60000)
+    return () => clearInterval(interval)
+  }, [markets])
+
+  const loadActivityFeed = async () => {
+    if (!markets?.length) {
+      setActivityFeed([])
+      return
+    }
+    try {
+      const marketIds = markets.map((m) => m.id).filter(Boolean)
+      const data = await getActivityFeed(marketIds, 30)
+      setActivityFeed(Array.isArray(data) ? data : [])
+    } catch (error) {
+      console.error('Error loading activity feed:', error)
+      setActivityFeed([])
+    }
+  }
 
   useEffect(() => {
     if (selectedMarket) {
@@ -68,12 +94,14 @@ function Watchlist() {
 
   const loadMarketData = async (marketId) => {
     try {
-      const [detailData, snapshotsData, shiftsData, tradesData, volumeChartData] = await Promise.all([
+      const [detailData, snapshotsData, shiftsData, tradesData, volumeChartData, orderBookData, priceHistoryData] = await Promise.all([
         getMarketDetail(marketId),
         getMarketSnapshots(marketId, 24),
         getMarketShifts(marketId),
         getMarketTrades(marketId, 20),
-        getMarketVolumeChart(marketId, 24)
+        getMarketVolumeChart(marketId, 24),
+        getMarketOrderBook(marketId),
+        getMarketPriceHistory(marketId, '1m', 24)
       ])
       
       // Set outcomes from detail data
@@ -81,7 +109,7 @@ function Watchlist() {
         setOutcomes(detailData.outcomes)
       } else {
         // Fallback: extract outcomes from snapshots
-        const outcomeIds = [...new Set(snapshotsData.map(s => s.outcome_id))]
+        const outcomeIds = [...new Set(snapshotsData.map(s => s.polymarket_outcome_id ?? s.outcome_id))]
         setOutcomes(outcomeIds.map(id => ({ id, name: `Outcome ${id}` })))
       }
       
@@ -89,6 +117,8 @@ function Watchlist() {
       setShifts(shiftsData)
       setTrades(tradesData || [])
       setVolumeChart(volumeChartData?.data || [])
+      setOrderBooks(orderBookData?.order_books || [])
+      setPriceHistory(priceHistoryData?.data || [])
     } catch (error) {
       console.error('Error loading market data:', error)
     }
@@ -243,26 +273,57 @@ function Watchlist() {
                   </div>
                 </div>
 
+                {activityFeed.length > 0 && (
+                  <div className="activity-feed-section">
+                    <h3>Recent Activity from Tracked Users</h3>
+                    <p className="section-description">Trades from users you track on your watchlist markets</p>
+                    <div className="activity-feed-list">
+                      {activityFeed.slice(0, 10).map((a) => (
+                        <UserActivityCard key={a.id} activity={a} />
+                      ))}
+                    </div>
+                    {activityFeed.length > 10 && (
+                      <Link to="/users" className="activity-feed-link">View all in User Tracker →</Link>
+                    )}
+                  </div>
+                )}
+
                 {outcomes.length > 0 && (
                   <div className="outcomes-preview">
                     <h3>Current Outcomes</h3>
                     <div className="outcomes-grid-small">
-                      {outcomes.map((outcome) => (
-                        <OutcomeCard
-                          key={outcome.id || outcome.outcome_id}
-                          outcome={outcome}
-                        />
-                      ))}
+                      {outcomes.map((outcome) => {
+                        const oid = outcome.id || outcome.outcome_id
+                        const orderBook = orderBooks.find((ob) => ob.token_id === oid || ob.token_id === String(oid))
+                        const outcomePriceHistory = (priceHistory || []).filter((p) => p.outcome_id === oid || p.outcome_id === String(oid))
+                        let change24h = null
+                        if (outcomePriceHistory.length >= 2) {
+                          const first = outcomePriceHistory[0]?.close ?? outcomePriceHistory[0]?.price
+                          const last = outcomePriceHistory[outcomePriceHistory.length - 1]?.close ?? outcomePriceHistory[outcomePriceHistory.length - 1]?.price
+                          if (first != null && last != null && first > 0) change24h = ((last - first) / first) * 100
+                        }
+                        return (
+                          <OutcomeCard
+                            key={oid}
+                            outcome={outcome}
+                            orderBook={orderBook}
+                            priceHistory={outcomePriceHistory}
+                            change24h={change24h}
+                            marketId={selectedMarket?.id}
+                          />
+                        )
+                      })}
                     </div>
                   </div>
                 )}
 
-                {snapshots.length > 0 && outcomes.length > 0 && (
+                {(priceHistory?.length > 0 || (snapshots.length > 0 && outcomes.length > 0)) && (
                   <div className="chart-section">
                     <ProbabilityChart 
                       data={snapshots} 
                       outcomes={outcomes}
                       range="24h"
+                      priceHistory={priceHistory}
                     />
                   </div>
                 )}

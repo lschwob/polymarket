@@ -63,3 +63,11 @@ export const getMarketVolumeChart = async (marketId, rangeHours = 24) => {
   })
   return response.data
 }
+
+export const getOutcomePriceHistory = async (marketId, outcomeTokenId, rangeHours = 24) => {
+  const response = await client.get(
+    `/api/markets/${marketId}/outcomes/${encodeURIComponent(outcomeTokenId)}/price-history`,
+    { params: { range_hours: rangeHours } }
+  )
+  return response.data
+}

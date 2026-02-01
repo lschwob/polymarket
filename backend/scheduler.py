@@ -1,10 +1,11 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
-from database import SessionLocal, TrackedMarket, PriceSnapshot, Trade, OrderBookSnapshot
+from database import SessionLocal, TrackedMarket, PriceSnapshot, Trade, OrderBookSnapshot, TrackedUser
 from services.trending_categories import refresh_trending_categories
 from services.snapshot_service import refresh_all_tracked_markets
 from services.alert_detection import detect_shifts, create_alerts
 from services.clob_api import fetch_price_history, fetch_market_trades_by_market, fetch_order_book
+from services.user_activity_service import fetch_and_store_user_activity
 from services.market_data import fetch_market_details, extract_outcomes_from_event
 from datetime import datetime, timedelta
 from config import (
@@ -185,6 +186,25 @@ async def job_fetch_recent_trades():
     finally:
         db.close()
 
+async def job_refresh_user_activities():
+    """Job to fetch and store activity for all tracked users every 1 minute."""
+    db = SessionLocal()
+    try:
+        users = db.query(TrackedUser).all()
+        for user in users:
+            try:
+                count = await fetch_and_store_user_activity(db, user.address, limit=25, offset=0)
+                if count > 0:
+                    print(f"User {user.address[:10]}...: {count} new activities")
+            except Exception as e:
+                print(f"Error refreshing user {user.address}: {e}")
+        if users:
+            print("User activities refreshed")
+    except Exception as e:
+        print(f"Error in user activities job: {e}")
+    finally:
+        db.close()
+
 async def job_cleanup_old_data():
     """Job to cleanup old data (older than 30 days) every 30 minutes."""
     db = SessionLocal()
@@ -249,6 +269,13 @@ def start_scheduler():
             job_fetch_recent_trades,
             trigger=IntervalTrigger(minutes=5),
             id="fetch_recent_trades",
+            replace_existing=True
+        )
+        
+        scheduler.add_job(
+            job_refresh_user_activities,
+            trigger=IntervalTrigger(minutes=1),
+            id="refresh_user_activities",
             replace_existing=True
         )
         

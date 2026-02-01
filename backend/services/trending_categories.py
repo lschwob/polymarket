@@ -17,7 +17,7 @@ async def fetch_trending_events(limit: int = 100) -> List[Dict]:
             "active": "true",
             "archived": "false",
             "closed": "false",
-            "order": "volume",
+            "order": "volume24hr",
             "ascending": "false"
         }
         response = await client.get(url, params=params, timeout=30.0)
@@ -33,7 +33,7 @@ def aggregate_trending_categories(events: List[Dict], top_k: int = 20) -> List[D
     tag_scores = defaultdict(lambda: {"score": 0.0, "count": 0, "label": None})
     
     for event in events:
-        volume = event.get("volume", 0) or 0
+        volume = float(event.get("volume24hr") or event.get("volume") or 0)
         tags = event.get("tags", [])
         
         for tag in tags:

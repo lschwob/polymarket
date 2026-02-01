@@ -1,0 +1,269 @@
+.user-tracker {
+  width: 100%;
+}
+
+.user-tracker h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.user-tracker .subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.user-tracker-content {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .user-tracker-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.users-sidebar h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.add-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.add-address-input,
+.add-name-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.add-user-btn {
+  padding: 0.5rem 1rem;
+  background: var(--accent-blue);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.add-user-btn:hover {
+  opacity: 0.9;
+}
+
+.add-error {
+  font-size: 0.85rem;
+  color: var(--accent-red);
+}
+
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-card:hover {
+  border-color: var(--accent-blue);
+}
+
+.user-card.selected {
+  border-color: var(--accent-blue);
+  background: var(--bg-secondary);
+}
+
+.user-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.user-address {
+  font-family: monospace;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.delete-user-btn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-user-btn:hover {
+  color: var(--accent-red);
+}
+
+.user-name {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.empty-sidebar {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  padding: 1rem;
+}
+
+.user-detail-panel {
+  min-width: 0;
+}
+
+.user-detail-header {
+  margin-bottom: 1.5rem;
+}
+
+.user-detail-header h2 {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.user-address-full {
+  font-family: monospace;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  word-break: break-all;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.refresh-btn {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.refresh-btn:hover {
+  border-color: var(--accent-blue);
+}
+
+.summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.summary-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  min-width: 120px;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.summary-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.active-badge {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.chart-section,
+.activity-section,
+.markets-section {
+  margin-bottom: 2rem;
+}
+
+.chart-section h3,
+.activity-section h3,
+.markets-section h3 {
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+}
+
+.activity-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.empty-activity {
+  color: var(--text-secondary);
+  padding: 1rem;
+}
+
+.markets-list-detail {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.markets-list-detail li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+  gap: 1rem;
+}
+
+.market-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.market-volume {
+  font-family: monospace;
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.empty-detail {
+  color: var(--text-secondary);
+  padding: 2rem;
+  text-align: center;
+}
+
+.user-tracker.loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-secondary);
+}

@@ -56,3 +56,124 @@
 .outcome-trend.down {
   color: var(--accent-red);
 }
+
+.outcome-change24h {
+  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.outcome-change24h.up {
+  color: var(--accent-green);
+}
+
+.outcome-change24h.down {
+  color: var(--accent-red);
+}
+
+.outcome-sparkline {
+  margin-top: 0.5rem;
+  height: 36px;
+  min-height: 36px;
+}
+
+.outcome-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.outcome-btn-chart,
+.outcome-btn-orderbook {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.outcome-btn-chart:hover,
+.outcome-btn-orderbook:hover {
+  border-color: var(--accent-blue);
+  background: var(--bg-card);
+}
+
+.outcome-order-book {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.outcome-order-book .ob-side {
+  flex: 1;
+  min-width: 0;
+}
+
+.outcome-order-book .ob-header {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.35rem;
+}
+
+.outcome-order-book .ob-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-family: monospace;
+}
+
+.outcome-order-book .ob-price {
+  color: var(--text-primary);
+}
+
+.outcome-order-book .ob-size {
+  color: var(--text-secondary);
+}
+
+.outcome-chart-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.outcome-chart-modal {
+  position: relative;
+  background: var(--bg-card);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.outcome-chart-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.outcome-chart-modal-close:hover {
+  background: var(--border-color);
+}

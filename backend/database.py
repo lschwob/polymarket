@@ -119,6 +119,40 @@ class OrderBookSnapshot(Base):
     market = relationship("TrackedMarket")
     outcome = relationship("Outcome")
 
+
+class TrackedUser(Base):
+    __tablename__ = "tracked_user"
+    
+    address = Column(String, primary_key=True, index=True)  # Ethereum address (proxy wallet)
+    name = Column(String, nullable=True)
+    pseudonym = Column(String, nullable=True)
+    profile_image = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    activities = relationship("UserActivity", back_populates="user", cascade="all, delete-orphan")
+
+
+class UserActivity(Base):
+    __tablename__ = "user_activity"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_address = Column(String, ForeignKey("tracked_user.address"), index=True)
+    activity_type = Column(String, index=True)  # TRADE, REDEEM
+    market_id = Column(Integer, ForeignKey("tracked_market.id"), nullable=True, index=True)
+    market_slug = Column(String, index=True)
+    market_title = Column(String, nullable=True)
+    outcome = Column(String, nullable=True)
+    side = Column(String, nullable=True)  # BUY, SELL (null for REDEEM)
+    size = Column(Float)  # tokens
+    usdc_size = Column(Float)  # USDC value
+    price = Column(Float, nullable=True)  # null for REDEEM
+    timestamp = Column(DateTime, index=True)
+    transaction_hash = Column(String, unique=True, index=True)
+    
+    user = relationship("TrackedUser", back_populates="activities")
+    market = relationship("TrackedMarket")
+
+
 # SQLite database
 SQLALCHEMY_DATABASE_URL = "sqlite:///./polymarket_tracker.db"
 
